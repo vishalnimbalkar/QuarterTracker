@@ -1,0 +1,8 @@
+# Ignore dependencies
+node_modules/
+
+utilities/
+uploads/
+# Ignore specific files
+.env
+package-lock.json

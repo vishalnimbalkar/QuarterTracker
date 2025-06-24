@@ -4,7 +4,12 @@ const router = express.Router();
 const quarterSchema = require('../schemas/quarter.js');
 const { jwtAuthMiddleware } = require('../middlewares/jwt.js');
 const { requireRole } = require('../middlewares/auth.js');
-const { addQuarter, getAllQuarters, getQuarterByCampusAndFlatType, deleteQuarter } = require('../controllers/quarter.js');
+const {
+	addQuarter,
+	getAllQuarters,
+	getQuarterByCampusAndFlatType,
+	deleteQuarter,
+} = require('../controllers/quarter.js');
 
 router.post('/add', jwtAuthMiddleware, validate(quarterSchema), requireRole('admin'), addQuarter);
 router.get('/get-all-quarters', jwtAuthMiddleware, requireRole('admin'), getAllQuarters);

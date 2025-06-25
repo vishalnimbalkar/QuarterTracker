@@ -1,0 +1,26 @@
+module.exports = {
+	type: 'object',
+	properties: {
+		phone: { type: 'string' },
+		maritalStatus: { type: 'string', enum: ['Single', 'Married', 'Divorced', 'Widowed'] },
+		familyMembers: { type: 'string' },
+		medicalCondition: { type: 'string' },
+		natureOfEmployment: { type: 'string', enum: ['Permanent', 'Contract', 'Temporary', 'Other'] },
+		yearsOfService: { type: 'integer', minimum: 0 },
+		preferredLocation: { type: 'string' },
+		preferredFlatType: { type: 'string', enum: ['1BHK', '2BHK', '3BHK'] },
+		reasonForPreference: { type: 'string' },
+	},
+	required: [
+		'phone',
+		'maritalStatus',
+		'familyMembers',
+		'medicalCondition',
+		'natureOfEmployment',
+		'yearsOfService',
+		'preferredLocation',
+		'preferredFlatType',
+		'reasonForPreference',
+	],
+	additionalProperties: false,
+};

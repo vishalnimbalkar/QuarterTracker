@@ -4,6 +4,7 @@ const { pool } = require('../config/database');
 const { generateToken } = require('../middlewares/jwt.js');
 const { forgotPasswordEmail } = require('../services/email.js');
 
+//function to login for admin and faculty
 const login = async (req, res) => {
 	try {
 		const { email, password } = req.body;
@@ -16,8 +17,6 @@ const login = async (req, res) => {
 		}
 
 		const faculty = rows[0];
-		console.log(faculty);
-
 		//account checks
 		if (!faculty.isActive) {
 			return res.status(403).json({ success: false, message: 'Your account is deactivated' });
@@ -30,14 +29,21 @@ const login = async (req, res) => {
 
 		// Remove password before sending user data
 		delete faculty.password;
-		//Generate access token
-		const accessToken = generateToken(faculty);
-		return res.status(200).json({ success: true, message: 'Login successfully', faculty, accessToken });
+		if (faculty.role === 'faculty') {
+			//Generate access token
+			const accessToken = generateToken(faculty);
+			return res.status(200).json({ success: true, message: 'Login successfully', faculty, accessToken });
+		} else {
+			const admin = { id: faculty.id, role: faculty.role };
+			const accessToken = generateToken(admin);
+			return res.status(200).json({ success: true, message: 'Login successfully', admin, accessToken });
+		}
 	} catch (error) {
 		return res.status(500).json({ success: false, message: error.message });
 	}
 };
 
+//function send email with reset password link
 const forgotPassword = async (req, res) => {
 	try {
 		const { email } = req.body;
@@ -63,6 +69,7 @@ const forgotPassword = async (req, res) => {
 	}
 };
 
+//function to reset password
 const resetPassword = async (req, res) => {
 	try {
 		const { verificationToken } = req.query;

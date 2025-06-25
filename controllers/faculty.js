@@ -2,10 +2,11 @@ const bcrypt = require('bcryptjs');
 const { pool } = require('../config/database');
 const { sendCredentials } = require('../services/email.js');
 
+//function to add faculty by admin
 const addFaculty = async (req, res) => {
 	const connection = await pool.getConnection();
 	try {
-		const { fullName, email, phone, password, designation, department, institute, dateOfJoining } = req.body;
+		const { fullName, email, password, designation, department, institute, dateOfJoining } = req.body;
 		// Start transaction
 		await connection.beginTransaction();
 		//check email is exists or not
@@ -20,8 +21,8 @@ const addFaculty = async (req, res) => {
 		const hashedPassword = await bcrypt.hash(password, 10);
 
 		//database insert operation
-		const userData = [fullName, email, phone, hashedPassword, designation, department, institute, dateOfJoining];
-		const query = `insert into faculties (fullName, email, phone, password, designation, department, institute, dateOfJoining) values(?,?,?,?,?,?,?,?)`;
+		const userData = [fullName, email, hashedPassword, designation, department, institute, dateOfJoining];
+		const query = `insert into faculties (fullName, email, password, designation, department, institute, dateOfJoining) values(?,?,?,?,?,?,?)`;
 		await connection.query(query, userData);
 
 		//sending register success mail with credentials
@@ -38,4 +39,96 @@ const addFaculty = async (req, res) => {
 	}
 };
 
-module.exports = { addFaculty };
+//function to add preferences details by faculty
+const updateFaculty = async (req, res) => {
+	try {
+		const facultyId = Number(req.params.facultyId);
+		const {
+			phone,
+			maritalStatus,
+			familyMembers,
+			medicalCondition,
+			natureOfEmployment,
+			yearsOfService,
+			preferredLocation,
+			preferredFlatType,
+			reasonForPreference,
+		} = req.body;
+		//check id is valid or not
+		if (isNaN(facultyId)) {
+			return res.status(400).json({ success: false, message: 'Invalid Faculty ID' });
+		}
+		const updateQuery = `update faculties SET
+				phone = ?,
+                maritalStatus = ?,
+                familyMembers = ?,
+                medicalCondition = ?,
+                natureOfEmployment = ?,
+                yearsOfService = ?,
+                preferredLocation = ?,
+                preferredFlatType = ?,
+                reasonForPreference = ? WHERE id = ?`;
+
+		const values = [
+			phone,
+			maritalStatus,
+			familyMembers,
+			medicalCondition,
+			natureOfEmployment,
+			yearsOfService,
+			preferredLocation,
+			preferredFlatType,
+			reasonForPreference,
+			facultyId,
+		];
+		const [result] = await pool.query(updateQuery, values);
+		if (result.affectedRows === 0) {
+			return res.status(404).json({ success: false, message: 'Faculty not found' });
+		}
+		res.status(200).json({ success: true, message: 'Faculty updated successfully' });
+	} catch (error) {
+		return res.status(500).json({ success: false, message: error.message });
+	}
+};
+
+//get faculty details by id
+const getFacultyById = async (req, res) => {
+	try {
+		const facultyId = Number(req.params.facultyId);
+		//check id is valid or not
+		if (isNaN(facultyId)) {
+			return res.status(400).json({ success: false, message: 'Invalid Faculty ID' });
+		}
+		const query = `select id, fullName, email, phone, designation, department, institute,
+                    dateOfJoining, maritalStatus, familyMembers, medicalCondition,
+                    natureOfEmployment, yearsOfService, preferredLocation,
+                    preferredFlatType, reasonForPreference, createdAt from faculties where id = ? and isActive = 1`;
+		const [result] = await pool.query(query, [facultyId]);
+		const faculty = result[0];
+		if (!faculty) {
+			return res.status(404).json({ success: false, message: 'Faculty not found' });
+		}
+		return res.status(200).json({ success: true, message: 'Data fetched successfully', faculty });
+	} catch (error) {
+		return res.status(500).json({ success: false, message: error.message });
+	}
+};
+
+//get all faculty details
+const getAllFaculties = async (req, res) => {
+	try {
+		const query = `select id, email, phone, designation, department, institute,
+                    dateOfJoining, maritalStatus, familyMembers, medicalCondition,
+                    natureOfEmployment, yearsOfService, preferredLocation,
+                    preferredFlatType, reasonForPreference, createdAt from faculties where id = ? and isActive = 1`;
+		const [result] = await pool.query(query, [facultyId]);
+		const faculty = result[0];
+		if (!faculty) {
+			return res.status(404).json({ success: false, message: 'Faculty not found' });
+		}
+		return res.status(200).json({ success: true, message: 'Data fetched successfully', faculty });
+	} catch (error) {
+		return res.status(500).json({ success: false, message: error.message });
+	}
+};
+module.exports = { addFaculty, updateFaculty, getFacultyById, getAllFaculties };

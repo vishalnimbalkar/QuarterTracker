@@ -37,7 +37,7 @@ const forgotPasswordEmail = async (verificationToken, to, name) => {
 	const resetUrl = `${process.env.CLIENT_URL}/login/resetPassword?verificationToken=${verificationToken}`;
 	const ejsTemplate = await ejs.renderFile('./utilities/templates/forgotPassword.ejs', { name, resetUrl });
 	const mailOptions = {
-		from: process.env.EMAIL_USER,
+		from: `"QuarterTracker" <${process.env.EMAIL_USER}>`,
 		to,
 		subject: 'Reset Password',
 		html: ejsTemplate,

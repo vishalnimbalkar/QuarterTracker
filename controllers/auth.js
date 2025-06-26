@@ -36,7 +36,7 @@ const login = async (req, res) => {
 		} else {
 			const admin = { id: faculty.id, role: faculty.role };
 			const accessToken = generateToken(admin);
-			return res.status(200).json({ success: true, message: 'Login successfully', admin, accessToken });
+			return res.status(200).json({ success: true, message: 'Login successfully', faculty: admin, accessToken });
 		}
 	} catch (error) {
 		return res.status(500).json({ success: false, message: error.message });

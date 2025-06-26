@@ -85,6 +85,8 @@ const updateFaculty = async (req, res) => {
 		if (result.affectedRows === 0) {
 			return res.status(404).json({ success: false, message: 'Faculty not found' });
 		}
+		const requestQuery = `insert into requests(facultyId) values(?)`;
+		await pool.query(requestQuery, [facultyId]);
 		res.status(200).json({ success: true, message: 'Faculty updated successfully' });
 	} catch (error) {
 		return res.status(500).json({ success: false, message: error.message });
@@ -114,21 +116,4 @@ const getFacultyById = async (req, res) => {
 	}
 };
 
-//get all faculty details
-const getAllFaculties = async (req, res) => {
-	try {
-		const query = `select id, email, phone, designation, department, institute,
-                    dateOfJoining, maritalStatus, familyMembers, medicalCondition,
-                    natureOfEmployment, yearsOfService, preferredLocation,
-                    preferredFlatType, reasonForPreference, createdAt from faculties where id = ? and isActive = 1`;
-		const [result] = await pool.query(query, [facultyId]);
-		const faculty = result[0];
-		if (!faculty) {
-			return res.status(404).json({ success: false, message: 'Faculty not found' });
-		}
-		return res.status(200).json({ success: true, message: 'Data fetched successfully', faculty });
-	} catch (error) {
-		return res.status(500).json({ success: false, message: error.message });
-	}
-};
-module.exports = { addFaculty, updateFaculty, getFacultyById, getAllFaculties };
+module.exports = { addFaculty, updateFaculty, getFacultyById };

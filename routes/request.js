@@ -1,11 +1,11 @@
 const express = require('express');
-const { validate } = require('../middlewares/schema.js');
 const router = express.Router();
-const requestSchema = require('../schemas/request.js');
 const { jwtAuthMiddleware } = require('../middlewares/jwt.js');
 const { requireRole } = require('../middlewares/auth.js');
-const { assignQuarter } = require('../controllers/request.js');
+const { getAllRequests, approvedRequest, rejectRequest, getAllRequestsByFacultyId } = require('../controllers/request.js');
 
-router.post('/assign-quarter', jwtAuthMiddleware, validate(requestSchema), requireRole('admin'), assignQuarter);
-
+router.get('/get-all-requests', jwtAuthMiddleware, requireRole('admin'), getAllRequests);
+router.patch('/approve/:requestId', jwtAuthMiddleware, requireRole('admin'), approvedRequest);
+router.patch('/reject/:requestId', jwtAuthMiddleware, requireRole('admin'), rejectRequest);
+router.get('/get-all-requests/:facultyId', jwtAuthMiddleware, requireRole('faculty'), getAllRequestsByFacultyId);
 module.exports = router;

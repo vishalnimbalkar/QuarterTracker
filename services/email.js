@@ -19,7 +19,7 @@ const sendCredentials = async (to, name, password) => {
 	//verification api with jwt token
 	const ejsTemplate = await ejs.renderFile('./utilities/templates/email.ejs', { name, to, password });
 	const mailOptions = {
-		from: process.env.EMAIL_USER,
+		from: `"QuarterTracker" <${process.env.EMAIL_USER}>`,
 		to,
 		subject: 'Welcome to QuarterTracker - Your Account Details',
 		html: ejsTemplate,

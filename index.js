@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth.js');
 const quarterRoutes = require('./routes/quarter.js');
 const contactRoutes = require('./routes/contact.js');
 const requestRoutes = require('./routes/request.js');
+const residentRoutes = require('./routes/resident.js');
 
 const app = express();
 const port = process.env.PORT;
@@ -31,6 +32,7 @@ app.use('/auth', authRoutes);
 app.use('/quarter', quarterRoutes);
 app.use('/contact', contactRoutes);
 app.use('/request', requestRoutes);
+app.use('/resident', residentRoutes);
 
 const server = http.createServer(app);
 server.listen(port, () => {

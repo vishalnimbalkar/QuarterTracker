@@ -6,6 +6,7 @@ function generateQuarterPrefix(campusName, blockName, flatType) {
 	return `${campusCode}-${blockName.toUpperCase()}-${flatType.toUpperCase()}`;
 }
 
+//function to add multiple quarters
 const addQuarter = async (req, res) => {
 	try {
 		const { campusName, blockName, flatType, totalFlats } = req.body;
@@ -23,25 +24,25 @@ const addQuarter = async (req, res) => {
 		}
 		const insertQuery = `insert into quarters (quarterCode, campusName, blockName, flatType) values ?`;
 		await pool.query(insertQuery, [values]);
-		res.status(201).json({ success: true, message: `${totalFlats} quarters added successfully.` });
+		return res.status(201).json({ success: true, message: `${totalFlats} quarters added successfully.` });
 	} catch (error) {
-		console.log(error);
 		return res.status(500).json({ success: false, message: error.message });
 	}
 };
 
+//function to get all quarters
 const getAllQuarters = async (req, res) => {
 	try {
 		const [rows] = await pool.query(
 			'select id, quarterCode, campusName, blockName, flatType, status, createdAt, updatedAt from quarters where isActive = 1 order by createdAt desc'
 		);
-		res.status(200).json({ success: true, quarters: rows });
+		return res.status(200).json({ success: true, quarters: rows });
 	} catch (error) {
-		console.error('Error fetching quarters:', error);
-		res.status(500).json({ success: false, message: 'Internal server error' });
+		return res.status(500).json({ success: false, message: error.message });
 	}
 };
 
+//function to get quarters with campus Name and flat type
 const getQuarterByCampusAndFlatType = async (req, res) => {
 	try {
 		const { campusName, flatType } = req.query;
@@ -49,13 +50,13 @@ const getQuarterByCampusAndFlatType = async (req, res) => {
 			'select id, quarterCode, campusName, blockName, flatType, status, createdAt, updatedAt from quarters where campusName = ? and flatType = ? and status = ? and isActive = 1 order by createdAt desc',
 			[campusName, flatType, 'available']
 		);
-		res.status(200).json({ success: true, quarters: rows });
+		return res.status(200).json({ success: true, quarters: rows });
 	} catch (error) {
-		console.error('Error fetching quarters:', error);
-		res.status(500).json({ success: false, message: 'Internal server error' });
+		return res.status(500).json({ success: false, message: error.message });
 	}
 };
 
+//function to soft delete quarter(isActive = false)
 const deleteQuarter = async (req, res) => {
 	try {
 		const quarterId = Number(req.params.quarterId);

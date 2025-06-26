@@ -87,7 +87,7 @@ const updateFaculty = async (req, res) => {
 		}
 		const requestQuery = `insert into requests(facultyId) values(?)`;
 		await pool.query(requestQuery, [facultyId]);
-		res.status(200).json({ success: true, message: 'Faculty updated successfully' });
+		return res.status(200).json({ success: true, message: 'Faculty updated successfully' });
 	} catch (error) {
 		return res.status(500).json({ success: false, message: error.message });
 	}

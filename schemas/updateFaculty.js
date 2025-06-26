@@ -22,5 +22,5 @@ module.exports = {
 		'preferredFlatType',
 		'reasonForPreference',
 	],
-	additionalProperties: false,
+	additionalProperties: true,
 };

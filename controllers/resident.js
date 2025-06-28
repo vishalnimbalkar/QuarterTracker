@@ -21,7 +21,7 @@ const deleteResident = async (req, res) => {
     try {
         const requestId = Number(req.params.requestId);
         if (isNaN(requestId)) {
-            return res.status(400).json({ success: false, message: 'Invalid Request Id' });
+            return res.status(400).json({ success: false, message: 'Invalid request id' });
         }
         const [result] = await pool.query(`select id, facultyId, quarterId, isActive from requests where id = ? limit 1`, [requestId]);
         const resident = result[0];

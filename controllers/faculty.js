@@ -14,7 +14,7 @@ const addFaculty = async (req, res) => {
 		const [result] = await pool.query(emailQuery, [email]);
 		//if result contains user return email already exists
 		if (result.length === 1) {
-			return res.status(400).json({ success: false, message: 'Email Already Exists. Please try another Email' });
+			return res.status(400).json({ success: false, message: 'Email already exists. please try another email' });
 		}
 
 		// Hash the password using bcryptjs
@@ -56,7 +56,7 @@ const updateFaculty = async (req, res) => {
 		} = req.body;
 		//check id is valid or not
 		if (isNaN(facultyId)) {
-			return res.status(400).json({ success: false, message: 'Invalid Faculty ID' });
+			return res.status(400).json({ success: false, message: 'Invalid faculty id' });
 		}
 		const updateQuery = `update faculties SET
 				phone = ?,
@@ -96,19 +96,23 @@ const updateFaculty = async (req, res) => {
 //get faculty details by id
 const getFacultyById = async (req, res) => {
 	try {
-		const facultyId = Number(req.params.facultyId);
+		const requestId = Number(req.params.requestId);
 		//check id is valid or not
-		if (isNaN(facultyId)) {
-			return res.status(400).json({ success: false, message: 'Invalid Faculty ID' });
+		if (isNaN(requestId)) {
+			return res.status(400).json({ success: false, message: 'Invalid request id' });
 		}
-		const query = `select id, fullName, email, phone, designation, department, institute,
-                    dateOfJoining, maritalStatus, familyMembers, medicalCondition,
-                    natureOfEmployment, yearsOfService, preferredLocation,
-                    preferredFlatType, reasonForPreference, createdAt from faculties where id = ? and isActive = 1`;
-		const [result] = await pool.query(query, [facultyId]);
+		const query = `SELECT f.id, f.fullName, f.email, f.phone, f.designation, f.department, f.institute,
+       	f.dateOfJoining, f.maritalStatus, f.familyMembers, f.medicalCondition,
+      	 f.natureOfEmployment, f.yearsOfService, f.preferredLocation,
+      	 f.preferredFlatType, f.reasonForPreference, f.createdAt,
+      	 r.status
+		FROM faculties f
+		INNER JOIN requests r ON f.id = r.facultyId
+		WHERE f.isActive = 1 AND r.id = ?`;
+		const [result] = await pool.query(query, [requestId]);
 		const faculty = result[0];
 		if (!faculty) {
-			return res.status(404).json({ success: false, message: 'Faculty not found' });
+			return res.status(404).json({ success: false, message: 'Request not found' });
 		}
 		return res.status(200).json({ success: true, message: 'Data fetched successfully', faculty });
 	} catch (error) {

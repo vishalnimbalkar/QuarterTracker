@@ -9,6 +9,6 @@ const router = express.Router();
 
 router.post('/add', jwtAuthMiddleware, validate(facultySchema), requireRole('admin'), addFaculty);
 router.patch('/:facultyId', jwtAuthMiddleware, validate(updateFacultySchema), requireRole('faculty'), updateFaculty);
-router.get('/:facultyId', jwtAuthMiddleware, requireRole('admin'), getFacultyById);
+router.get('/:requestId', jwtAuthMiddleware, requireRole('admin'), getFacultyById);
 
 module.exports = router;

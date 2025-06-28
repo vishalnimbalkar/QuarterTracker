@@ -62,7 +62,7 @@ const deleteQuarter = async (req, res) => {
 		const quarterId = Number(req.params.quarterId);
 		//check id is valid or not
 		if (isNaN(quarterId)) {
-			return res.status(400).json({ success: false, message: 'Invalid Quarter ID' });
+			return res.status(400).json({ success: false, message: 'Invalid quarter id' });
 		}
 		//soft-delete set isActive false
 		const query = `update quarters set isActive = 0 where id = ?`;

@@ -1,4 +1,5 @@
 const { pool } = require('../config/database');
+const { requestStatus } = require('../services/email');
 
 //get all requests details based on status(Pending, approved, rejected)
 const getAllRequests = async (req, res) => {
@@ -28,7 +29,7 @@ const getAllRequestsByFacultyId = async (req, res) => {
 		const facultyId = Number(req.params.facultyId);
 		//check id is valid or not
 		if (isNaN(facultyId)) {
-			return res.status(400).json({ success: false, message: 'Invalid Faculty Id' });
+			return res.status(400).json({ success: false, message: 'Invalid faculty id' });
 		}
 		const query = `select f.id as facultyId, f.fullName, f.preferredLocation,f.preferredFlatType, r.status, r.rejectReason 
         from requests r join faculties f on r.facultyId = f.id where r.facultyId = ? and r.isActive = 1`;
@@ -46,7 +47,7 @@ const approvedRequest = async (req, res) => {
 		const requestId = Number(req.params.requestId);
 		//check id is valid or not
 		if (isNaN(requestId)) {
-			return res.status(400).json({ success: false, message: 'Invalid Request Id' });
+			return res.status(400).json({ success: false, message: 'Invalid request id' });
 		}
 		// Check if the quarter exists and is available
 		const [quarter] = await pool.query(`select id, status from quarters where id = ?`, [quarterId]);
@@ -60,10 +61,14 @@ const approvedRequest = async (req, res) => {
 		const [result] = await pool.query(query, [quarterId, requestId]);
 		//check request is valid or not
 		if (result.affectedRows === 0) {
-			return res.status(400).json({ success: false, message: `Invalid Request` });
+			return res.status(400).json({ success: false, message: `Invalid request` });
 		}
 		//mark quarter as occupied
 		await pool.query(`update quarters set status = 'occupied' where id = ?`, [quarterId]);
+		//get faculty details to send email
+		const getQuery = `select f.fullName, f.email from requests r inner join faculties f on r.facultyId = f.id where r.id = ?`;
+		const [faculty] = await pool.query(getQuery, [requestId]);
+		await requestStatus(faculty[0].email, faculty[0].fullName, 'Approved');
 		return res.status(200).json({ success: true, message: `Request approved successfully.` });
 	} catch (error) {
 		return res.status(500).json({ success: false, message: error.message });
@@ -85,6 +90,10 @@ const rejectRequest = async (req, res) => {
 		if (result.affectedRows === 0) {
 			return res.status(400).json({ success: false, message: `Invalid Request` });
 		}
+		//get faculty details to send email
+		const getQuery = `select f.fullName, f.email from requests r inner join faculties f on r.facultyId = f.id where r.id = ?`;
+		const [faculty] = await pool.query(getQuery, [requestId]);
+		await requestStatus(faculty[0].email, faculty[0].fullName, 'Rejected', rejectReason);
 		return res.status(200).json({ success: true, message: `Request rejected successfully.` });
 	} catch (error) {
 		return res.status(500).json({ success: false, message: error.message });

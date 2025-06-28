@@ -63,7 +63,7 @@ const forgotPassword = async (req, res) => {
 		return res.status(200).json({ success: true, message: 'If the email is registered, a reset link will be sent.' });
 	} catch (error) {
 		if (error.name === 'TokenExpiredError') {
-			return res.status(400).json({ success: false, message: 'Reset link expired. Please request again.' });
+			return res.status(400).json({ success: false, message: 'Reset link expired. please request again.' });
 		}
 		return res.status(500).json({ success: false, message: error.message });
 	}
@@ -82,7 +82,7 @@ const resetPassword = async (req, res) => {
 		return res.status(200).json({ success: true, message: 'Password reset successfully' });
 	} catch (error) {
 		if (error.name === 'TokenExpiredError') {
-			return res.status(400).json({ success: false, message: 'Reset link expired. Please request again.' });
+			return res.status(400).json({ success: false, message: 'Reset link expired. please request again.' });
 		}
 		return res.status(500).json({ success: false, message: error.message });
 	}

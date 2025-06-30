@@ -8,7 +8,7 @@ const getAllResident = async (req, res) => {
 			from requests r
 			inner join faculties f on f.id = r.facultyId
             inner join quarters q on q.id = r.quarterId
-            where r.status = 'Approved' and r.isActive = 1`;
+            where r.status = 'Approved' and r.isActive = 1 order by r.createdAt desc`;
 		const [residents] = await pool.query(query);
 		return res.status(200).json({ success: true, message: 'Residents fetched successfully', residents });
 	} catch (error) {

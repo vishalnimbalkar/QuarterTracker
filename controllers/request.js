@@ -6,10 +6,10 @@ const getAllRequests = async (req, res) => {
 	try {
 		const { status } = req.query;
 		let query = `
-			select f.id as facultyId, f.fullName, f.designation, r.status
+			select r.id as requestId, f.fullName, f.designation, r.status
 			from requests r
 			inner join faculties f on f.id = r.facultyId
-            where r.isActive = 1`;
+            where r.isActive = 1 order by r.createdAt desc`;
 		const values = [];
 		//check status and add into where clause
 		if (status && status !== 'all') {

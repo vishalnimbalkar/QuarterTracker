@@ -65,10 +65,24 @@ const approvedRequest = async (req, res) => {
 		}
 		//mark quarter as occupied
 		await pool.query(`update quarters set status = 'occupied' where id = ?`, [quarterId]);
-		//get faculty details to send email
-		const getQuery = `select f.fullName, f.email from requests r inner join faculties f on r.facultyId = f.id where r.id = ?`;
-		const [faculty] = await pool.query(getQuery, [requestId]);
-		await requestStatus(faculty[0].email, faculty[0].fullName, 'Approved');
+		// Get faculty details to send email
+		try {
+			const getQuery = `
+				select f.fullName, f.email 
+				from requests r 
+				inner join faculties f on r.facultyId = f.id 
+				where r.id = ?
+			`;
+			const [faculty] = await pool.query(getQuery, [requestId]);
+
+			// Check if email exists
+			if (faculty.length && faculty[0].email) {
+				await requestStatus(faculty[0].email, faculty[0].fullName, 'Approved');
+			}
+		} catch (emailError) {
+			console.error(emailError.message);
+			// Don't throw error — continue even if email fails
+		}
 		return res.status(200).json({ success: true, message: `Request approved successfully.` });
 	} catch (error) {
 		return res.status(500).json({ success: false, message: error.message });
@@ -90,10 +104,24 @@ const rejectRequest = async (req, res) => {
 		if (result.affectedRows === 0) {
 			return res.status(400).json({ success: false, message: `Invalid Request` });
 		}
-		//get faculty details to send email
-		const getQuery = `select f.fullName, f.email from requests r inner join faculties f on r.facultyId = f.id where r.id = ?`;
-		const [faculty] = await pool.query(getQuery, [requestId]);
-		await requestStatus(faculty[0].email, faculty[0].fullName, 'Rejected', rejectReason);
+		// Get faculty details to send email
+		try {
+			const getQuery = `
+				select f.fullName, f.email 
+				from requests r 
+				inner join faculties f on r.facultyId = f.id 
+				where r.id = ?
+			`;
+			const [faculty] = await pool.query(getQuery, [requestId]);
+
+			// Check if email exists
+			if (faculty.length && faculty[0].email) {
+				await requestStatus(faculty[0].email, faculty[0].fullName, 'Rejected', rejectReason);
+			}
+		} catch (emailError) {
+			console.error(emailError.message);
+			// Don't throw error — continue even if email fails
+		}
 		return res.status(200).json({ success: true, message: `Request rejected successfully.` });
 	} catch (error) {
 		return res.status(500).json({ success: false, message: error.message });

@@ -50,7 +50,6 @@ const forgotPasswordEmail = async (verificationToken, to, name) => {
 	return transporter.sendMail(mailOptions);
 };
 
-
 const requestStatus = async (to, name, status, rejectReason = '') => {
 	const ejsTemplate = await ejs.renderFile('./utilities/templates/requestStatus.ejs', { name, status, rejectReason });
 	const mailOptions = {
